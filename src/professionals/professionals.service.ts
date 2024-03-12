@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Professional } from './entities/professional.entity';
 import { Repository } from 'typeorm';
 import { UUID } from 'crypto';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class ProfessionalsService {
@@ -50,7 +51,7 @@ export class ProfessionalsService {
       throw new BadRequestException("UUID provided is not valid")
     }
     const {cpf,documentNumber} = updateProfessionalDto
-    
+
     if(await this.professionalRepository.findOneBy({cpf})) throw new ConflictException("This CPF is already beeing used")
     if(await this.professionalRepository.findOneBy({documentNumber})) throw new ConflictException("This document is already beeing used")
 
