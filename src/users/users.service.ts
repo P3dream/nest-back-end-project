@@ -23,11 +23,15 @@ export class UsersService {
     
     const existingUser = await this.userRepository.findOneBy({username})
     
-    if(existingUser) throw new ConflictException("This user is already being used")
+    if(existingUser) throw new ConflictException("This username is already being used")
 
     const user = this.userRepository.create(creatingUser)
     
     return await this.userRepository.save(user)
+  }
+
+  async findByUsername(username : string) : Promise<User>{
+    return await this.userRepository.findOneBy({username})
   }
 
   async findAll() {
