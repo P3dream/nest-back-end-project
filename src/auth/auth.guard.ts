@@ -13,10 +13,11 @@ export class AuthGuard implements CanActivate {
     ]);
 
     if (isPublic) {
-      return true;
+      return true; // Se a rota for pública, permite o acesso sem autenticação
     }
 
     const request = context.switchToHttp().getRequest();
-    return request.user;
+    console.log('User:', request.user); // Adicionando log para depuração
+    return request.user; // Retorna true se o usuário estiver autenticado, caso contrário, retorna false
   }
 }
