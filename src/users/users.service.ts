@@ -15,8 +15,7 @@ export class UsersService {
   ){}
   async create(createUserDto: CreateUserDto) {
     const { username, password } = createUserDto;
-    console.log(username)
-    const existingUser = await this.userRepository.findOneBy({ username });
+    const existingUser = await this.userRepository.findOneBy({ username }); 
     if (existingUser) {
       throw new ConflictException('This username is already being used');
     }
@@ -27,7 +26,7 @@ export class UsersService {
       ...createUserDto,
       password: hashedPassword,
     };
-
+    creatingUser.roles = createUserDto?.roles || ['user'];
     const user = this.userRepository.create(creatingUser);
     return await this.userRepository.save(user);
   }
