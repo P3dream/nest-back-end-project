@@ -14,6 +14,9 @@ export class User {
     @Column()
     password : string;
 
+    @Column({ type: 'simple-array' })
+    roles: string[];
+
     @CreateDateColumn()
     created_at: Date;
 

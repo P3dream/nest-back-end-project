@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty } from "class-validator"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator"
 import { isEmpty } from "rxjs"
 
 export class CreateUserDto {
@@ -12,4 +12,8 @@ export class CreateUserDto {
     @IsNotEmpty()
     password : string
 
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsArray()
+    roles : Array<string>
 }

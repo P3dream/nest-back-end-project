@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from '../decorators/public.decorator';
+import { Public, Roles } from '../decorators/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -29,6 +29,7 @@ export class AuthController {
   }
 
   @Post('protected')
+  @Roles('admin')
   async protectedRoute(@Request() req) {
     return { message: 'You have accessed a protected route!', user: req.user };
   }
