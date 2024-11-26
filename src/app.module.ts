@@ -8,13 +8,17 @@ import { ProfessionalsModule } from './professionals/professionals.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard'; // Importe o AuthGuard aqui
 import { AuthModule } from './auth/auth.module';
+import { PatientsModule } from './patients/patients.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
     UsersModule,
-    ProfessionalsModule
+    ProfessionalsModule,
+    PatientsModule,
+    AppointmentsModule
   ],
   providers: [
     AppService,

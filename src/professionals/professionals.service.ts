@@ -3,7 +3,7 @@ import { CreateProfessionalDto } from './dto/create-professional.dto';
 import { UpdateProfessionalDto } from './dto/update-professional.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Professional } from './entities/professional.entity';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { UUID } from 'crypto';
 import { ApiResponse } from '@nestjs/swagger';
 
@@ -13,19 +13,34 @@ export class ProfessionalsService {
     @InjectRepository(Professional)
     private professionalRepository : Repository<Professional>
   ){}
-  async create(createProfessionalDto: CreateProfessionalDto) {
+
+  async validProfessionalId(id : UUID){
+    const foundProfessional = await this.findOne(id);
+    if(!foundProfessional){
+      throw new BadRequestException("Professional id not found!");
+    }
+    return foundProfessional;
+  }
+
+  async validProfessional(createProfessionalDto: CreateProfessionalDto, id? : UUID){
     const {documentNumber,cpf} = createProfessionalDto
     
-    const existingProfessionalCpf = await this.professionalRepository.findOneBy({cpf})
+    const existingProfessionalCpf = id? await this.professionalRepository.find({where:{cpf, id: Not(id)}}) : await this.professionalRepository.find({where:{cpf}})
     if(existingProfessionalCpf) throw new ConflictException("This CPF is already beeing used")
 
-    const existingProfessionalDocument = await this.professionalRepository.findOneBy({documentNumber})
+    const existingProfessionalDocument = id? await this.professionalRepository.find({where:{documentNumber, id: Not(id)}}) : await this.professionalRepository.find({where:{documentNumber}})
     if(existingProfessionalDocument) throw new ConflictException("This Document Number is already beeing used")
+  }
+
+  async create(createProfessionalDto: CreateProfessionalDto) {
+
+    await this.validProfessional(createProfessionalDto)
 
     const professional = this.professionalRepository.create(createProfessionalDto)
     
     return await this.professionalRepository.save(professional)
   }
+
   async findAll() {
     return await this.professionalRepository.find()
   }
@@ -38,7 +53,6 @@ export class ProfessionalsService {
     return await this.professionalRepository.find({where:{documentNumber:documentNumber}})
   }
 
-
   async findOne(id: UUID) {
     return await this.professionalRepository.findOneBy({ id }).catch((error) =>{
       throw new BadRequestException("UUID provided is not valid")
@@ -46,14 +60,9 @@ export class ProfessionalsService {
   }
 
   async update(id: UUID, updateProfessionalDto: UpdateProfessionalDto) {
-    const existingProfessional = await this.findOne(id);
-    if(!existingProfessional){
-      throw new BadRequestException("UUID provided is not valid")
-    }
-    const {cpf,documentNumber} = updateProfessionalDto
-
-    if(await this.professionalRepository.findOneBy({cpf})) throw new ConflictException("This CPF is already beeing used")
-    if(await this.professionalRepository.findOneBy({documentNumber})) throw new ConflictException("This document is already beeing used")
+    await this.validProfessionalId(id)
+   
+    await this.validProfessional(updateProfessionalDto as CreateProfessionalDto, id)
 
     return this.professionalRepository.update(id,updateProfessionalDto);
   }

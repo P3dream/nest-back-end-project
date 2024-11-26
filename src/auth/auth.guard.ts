@@ -1,23 +1,28 @@
-// auth.guard.ts
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, ExecutionContext } from '@nestjs/common';
+import { AuthGuard as NestAuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
+import { Observable, firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+export class AuthGuard extends NestAuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
 
     if (isPublic) {
-      return true; // Se a rota for pública, permite o acesso sem autenticação
+      return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    console.log('User:', request.user); // Adicionando log para depuração
-    return request.user; // Retorna true se o usuário estiver autenticado, caso contrário, retorna false
+    const canActivate = super.canActivate(context);
+    if (canActivate instanceof Observable) {
+      return await firstValueFrom(canActivate);
+    }
+    return canActivate;
   }
 }

@@ -14,21 +14,24 @@ export class UsersService {
     private userRepository : Repository<User>
   ){}
   async create(createUserDto: CreateUserDto) {
-    const {username,password} = createUserDto
-    
+    const { username, password } = createUserDto;
+    console.log(username)
+    const existingUser = await this.userRepository.findOneBy({ username });
+    if (existingUser) {
+      throw new ConflictException('This username is already being used');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     const creatingUser = {
       ...createUserDto,
-      password: await bcrypt.hash(password,12)
-    }
-    
-    const existingUser = await this.userRepository.findOneBy({username})
-    
-    if(existingUser) throw new ConflictException("This username is already being used")
+      password: hashedPassword,
+    };
 
-    const user = this.userRepository.create(creatingUser)
-    
-    return await this.userRepository.save(user)
+    const user = this.userRepository.create(creatingUser);
+    return await this.userRepository.save(user);
   }
+
 
   async findByUsername(username : string) : Promise<User>{
     return await this.userRepository.findOneBy({username})
