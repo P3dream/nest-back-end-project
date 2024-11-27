@@ -17,6 +17,9 @@ export class User {
     @Column({ type: 'simple-array' })
     roles: string[];
 
+    @Column()
+    email : string;
+
     @CreateDateColumn()
     created_at: Date;
 

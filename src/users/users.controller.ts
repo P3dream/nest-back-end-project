@@ -5,6 +5,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UUID } from 'crypto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -34,5 +36,17 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: UUID) {
     return this.usersService.remove(id);
+  }
+
+  @Public()
+  @Post('/resetPassword')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.usersService.resetPassword(resetPasswordDto);
+  }
+
+  @Public()
+  @Get('/resetPassword')
+  resetPasswordPage(){
+    return 'Page to reset password....'
   }
 }
